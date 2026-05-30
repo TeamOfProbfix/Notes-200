@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes - 2000 (Cozy Edition)</title>
+    <link rel="icon" href="static/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Fix triệt để lỗi tràn khung */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-cozy: #fbf5eb;
+            --y2k-window: #e8dbce;
+            --y2k-header: linear-gradient(90deg, #6c2b2b, #8b3a3a);
+            --border-light: #ffffff;
+            --border-dark: #8b7355;
+            --text-color: #3e2723;
+            --paper-color: #fffaf0;
+        }
+
+        body {
+            background-color: var(--bg-cozy);
+            background-image: radial-gradient(#d7ccc8 2px, transparent 2px);
+            background-size: 25px 25px;
+            font-family: 'Mountains of Christmas', serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden; /* Chống cuộn ngang */
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            color: #8b3a3a;
+            text-shadow: 2px 2px #ffffff;
+            margin-bottom: 10px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .window {
+            background-color: var(--y2k-window);
+            border-top: 3px solid var(--border-light);
+            border-left: 3px solid var(--border-light);
+            border-right: 3px solid var(--border-dark);
+            border-bottom: 3px solid var(--border-dark);
+            width: 100%;
+            max-width: 850px;
+            margin-bottom: 20px;
+            box-shadow: 5px 5px 0px rgba(62, 39, 35, 0.15);
+        }
+
+        .window-header {
+            background: var(--y2k-header);
+            color: #ffecd2;
+            padding: 5px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .window-content { padding: 15px; }
+
+        button {
+            font-family: 'Mountains of Christmas', serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #f0e4d7;
+            border-top: 2px solid var(--border-light);
+            border-left: 2px solid var(--border-light);
+            border-right: 2px solid var(--border-dark);
+            border-bottom: 2px solid var(--border-dark);
+            padding: 5px 15px;
+            cursor: pointer;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        button:active {
+            border-top: 2px solid var(--border-dark);
+            border-left: 2px solid var(--border-dark);
+            border-right: 2px solid var(--border-light);
+            border-bottom: 2px solid var(--border-light);
+            background-color: #dfcdb9;
+        }
+
+        input[type="text"], textarea {
+            font-family: 'Mountains of Christmas', serif;
+            font-size: 1.2rem;
+            width: 100%;
+            background: var(--paper-color);
+            border-top: 2px solid var(--border-dark);
+            border-left: 2px solid var(--border-dark);
+            border-right: 2px solid var(--border-light);
+            border-bottom: 2px solid var(--border-light);
+            padding: 8px;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            min-width: 150px; /* Thu nhỏ chút cho điện thoại */
+        }
+
+        #notesContainer {
+            display: grid;
+            /* Giảm minmax xuống để hợp với điện thoại, tự động chuyển 1 cột trên ĐT */
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        .note-card {
+            background-color: var(--paper-color);
+            border-top: 2px solid var(--border-light);
+            border-left: 2px solid var(--border-light);
+            border-right: 2px solid var(--border-dark);
+            border-bottom: 2px solid var(--border-dark);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            width: 100%; /* Ép thẻ không được tràn */
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dotted #c5b4a0;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #8b3a3a;
+            flex-grow: 1;
+            padding-right: 10px;
+            word-break: break-word; /* Chữ dài quá thì tự rớt dòng */
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .sort-buttons button {
+            padding: 2px 6px;
+            font-size: 0.9rem;
+            background-color: #e2d1c3;
+        }
+
+        .note-body {
+            font-size: 1.25rem;
+            white-space: pre-wrap;
+            flex-grow: 1;
+            margin-bottom: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            color: #4e342e;
+            word-break: break-word; /* Chống tràn text */
+        }
+
+        .note-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: flex-end;
+            padding-top: 5px;
+            border-top: 1px dashed #eaddcf;
+        }
+
+        .note-actions button { 
+            padding: 4px 8px; 
+            font-size: 0.95rem; 
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 30, 20, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-window { width: 100%; max-width: 450px; margin: 10px; }
+        #fileInput { display: none; }
+
+        /* Tinh chỉnh riêng cho Điện thoại nhỏ */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 2.5rem; }
+            #notesContainer { grid-template-columns: 1fr; } /* Ép thành 1 cột */
+            .window-content { padding: 10px; }
+            .note-actions button { flex-grow: 1; } /* Cho nút dàn đều dễ bấm */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>☕ Notes - 2000 (Cozy Winter) 🧦</h1>
+
+    <div class="window">
+        <div class="window-header">
+            <span>Control_Panel.exe</span>
+            <span>_ □ X</span>
+        </div>
+        <div class="window-content">
+            <div class="toolbar">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Tìm ghi chú..." onkeyup="searchNotes()">
+                <button onclick="openNoteModal()">+ Tạo Mới</button>
+                <button onclick="document.getElementById('fileInput').click()">📁 Nhập TXT</button>
+                <input type="file" id="fileInput" accept=".txt" onchange="importNote(event)">
+            </div>
+            
+            <div id="notesContainer"></div>
+        </div>
+    </div>
+
+    <div id="noteModal" class="modal-overlay">
+        <div class="window modal-window">
+            <div class="window-header">
+                <span id="modalTitle">Edit_Note.exe</span>
+                <span style="cursor:pointer;" onclick="closeModals()">X</span>
+            </div>
+            <div class="window-content">
+                <input type="hidden" id="editNoteId">
+                <input type="text" id="noteTitleInput" placeholder="Tiêu đề ghi chú...">
+                <textarea id="noteContentInput" rows="8" placeholder="Nội dung ấm áp..."></textarea>
+                <div style="text-align: right; margin-top: 10px;">
+                    <button onclick="saveNote()">💾 Lưu Lại</button>
+                    <button onclick="closeModals()">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="window modal-window" style="max-width: 320px;">
+            <div class="window-header">
+                <span>Warning.exe</span>
+                <span style="cursor:pointer;" onclick="closeModals()">X</span>
+            </div>
+            <div class="window-content" style="text-align: center;">
+                <p style="font-size: 1.4rem; color: #8b3a3a;">Ní có chắc muốn bỏ ghi chú này vào lò sưởi không?</p>
+                <input type="hidden" id="deleteNoteId">
+                <div style="margin-top: 20px;">
+                    <button onclick="confirmDelete()">Đốt luôn!</button>
+                    <button onclick="closeModals()">Thôi giữ lại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('notes2000_cozy')) || [];
+
+        function saveToLocal() {
+            localStorage.setItem('notes2000_cozy', JSON.stringify(notes));
+        }
+
+        function renderNotes(filterText = "") {
+            const container = document.getElementById('notesContainer');
+            container.innerHTML = '';
+            
+            let filteredNotes = notes.filter(n => 
+                n.title.toLowerCase().includes(filterText.toLowerCase()) || 
+                n.content.toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            filteredNotes.forEach((note, index) => {
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note-card';
+                
+                noteEl.innerHTML = `
+                    <div class="note-header">
+                        <div class="note-title">${note.title || 'Ghi chú vô danh'}</div>
+                        <div class="sort-buttons">
+                            ${filterText === "" ? `
+                                <button onclick="moveNote(${index}, 'up')" ${index === 0 ? 'disabled style="opacity:0.5"' : ''} title="Đẩy lên">🔼</button>
+                                <button onclick="moveNote(${index}, 'down')" ${index === notes.length - 1 ? 'disabled style="opacity:0.5"' : ''} title="Đẩy xuống">🔽</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="note-body">${note.content}</div>
+                    <div class="note-actions">
+                        <button onclick="copyData('${escapeString(note.title)}', 'Tiêu đề')" title="Chép Tiêu đề">🏷️ Tiêu đề</button>
+                        <button onclick="copyData('${escapeString(note.content)}', 'Nội dung')" title="Chép Nội dung">📝 Nội dung</button>
+                        
+                        <button onclick="exportNote(${note.id})" title="Xuất ra TXT">⬇️</button>
+                        <button onclick="openNoteModal(${note.id})" title="Chỉnh sửa">✏️</button>
+                        <button onclick="openDeleteModal(${note.id})" title="Xóa">❌</button>
+                    </div>
+                `;
+                container.appendChild(noteEl);
+            });
+        }
+
+        function moveNote(index, direction) {
+            if (direction === 'up' && index > 0) {
+                const temp = notes[index];
+                notes[index] = notes[index - 1];
+                notes[index - 1] = temp;
+            } else if (direction === 'down' && index < notes.length - 1) {
+                const temp = notes[index];
+                notes[index] = notes[index + 1];
+                notes[index + 1] = temp;
+            }
+            saveToLocal();
+            searchNotes();
+        }
+
+        function escapeString(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "\\n");
+        }
+
+        function copyData(text, typeName) {
+            if (!text) {
+                alert("Trống trơn à ní ơi, không có gì để chép! 🐧");
+                return;
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`Đã chép ${typeName} vô khay nhớ tạm! 🐧📋`);
+                }).catch(err => fallbackCopy(text, typeName));
+            } else {
+                fallbackCopy(text, typeName);
+            }
+        }
+
+        function fallbackCopy(text, typeName) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert(`Đã chép ${typeName} thành công (Chế độ tương thích)! 🐧📋`);
+            } catch (err) {
+                alert("Lỗi sao chép, thiết bị của ní không cho phép! 😭");
+            }
+            textArea.remove();
+        }
+
+        function openNoteModal(id = null) {
+            document.getElementById('noteModal').style.display = 'flex';
+            if (id) {
+                const note = notes.find(n => n.id === id);
+                document.getElementById('editNoteId').value = note.id;
+                document.getElementById('noteTitleInput').value = note.title;
+                document.getElementById('noteContentInput').value = note.content;
+                document.getElementById('modalTitle').innerText = "Edit_Note.exe";
+            } else {
+                document.getElementById('editNoteId').value = "";
+                document.getElementById('noteTitleInput').value = "";
+                document.getElementById('noteContentInput').value = "";
+                document.getElementById('modalTitle').innerText = "New_Note.exe";
+            }
+        }
+
+        function saveNote() {
+            const id = document.getElementById('editNoteId').value;
+            const title = document.getElementById('noteTitleInput').value;
+            const content = document.getElementById('noteContentInput').value;
+
+            if (!title && !content) return alert("Viết gì đó đi ní!");
+
+            if (id) {
+                const noteIndex = notes.findIndex(n => n.id == id);
+                notes[noteIndex] = { ...notes[noteIndex], title, content };
+            } else {
+                notes.unshift({ id: Date.now(), title, content });
+            }
+
+            saveToLocal();
+            searchNotes();
+            closeModals();
+        }
+
+        function openDeleteModal(id) {
+            document.getElementById('deleteNoteId').value = id;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function confirmDelete() {
+            const id = document.getElementById('deleteNoteId').value;
+            notes = notes.filter(n => n.id != id);
+            saveToLocal();
+            searchNotes();
+            closeModals();
+        }
+
+        function closeModals() {
+            document.getElementById('noteModal').style.display = 'none';
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        function searchNotes() {
+            const text = document.getElementById('searchInput').value;
+            renderNotes(text);
+        }
+
+        function exportNote(id) {
+            const note = notes.find(n => n.id === id);
+            const blob = new Blob([note.content], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${note.title || 'Note'}_Cozy.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function importNote(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                
+                // Lọc tên file: Xoá ".txt"
+                let title = file.name.replace(/\.txt$/i, ''); 
+                
+                // Đổi toàn bộ gạch ngang và gạch dưới thành dấu cách
+                title = title.replace(/[-_]/g, ' '); 
+                
+                // Xoá chữ 2000 (nếu còn sót từ code cũ)
+                title = title.replace(/ 2000/gi, ''); 
+                
+                // Xoá các khoảng trắng thừa do việc đổi kí tự gây ra
+                title = title.replace(/\s+/g, ' ').trim(); 
+                
+                notes.unshift({ id: Date.now(), title, content });
+                saveToLocal();
+                searchNotes();
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        renderNotes();
+    </script>
+</body>
+</html>
